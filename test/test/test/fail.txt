@@ -1,0 +1,5 @@
+This file should not appear in the output list.
+Test
+Test
+Test
+Fail
