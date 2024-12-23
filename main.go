@@ -9,8 +9,6 @@ import (
 	"strings"
 )
 
-var Files []string
-
 func main() {
 	path := "."
 
@@ -22,16 +20,17 @@ func main() {
 		path = os.Args[1]
 	}
 
-	err := os.Chdir(path)
+	err, results := SearchDir(path)
+
 	if err != nil {
 		panic(err)
 	}
 
-	if len(Files) > 0 {
+	if len(results) > 0 {
 		fmt.Println("TODO items:")
 
-		for i := 0; i < len(Files); i++ {
-			fmt.Printf("%s\n", Files[i])
+		for i := 0; i < len(results); i++ {
+			fmt.Printf("%s\n", results[i])
 		}
 		return
 	}
@@ -39,14 +38,20 @@ func main() {
 	fmt.Println("No TODO items found")
 }
 
-func SearchDir() error {
-	err := filepath.Walk(".", func(path string, info fs.FileInfo, err error) error {
+func SearchDir(path string) (error, []string) {
+
+	err := os.Chdir(path)
+	if err != nil {
+		panic(err)
+	}
+
+	var files []string
+	err = filepath.Walk(".", func(path string, info fs.FileInfo, err error) error {
 		if err != nil {
 			fmt.Printf("Prevent panic by handling failure accessing a path %q: %v\n", path, err)
 			return err
 		}
 
-		// no need to waste resources
 		if info.Name() == "node_modules" {
 			return filepath.SkipDir
 		}
@@ -56,9 +61,13 @@ func SearchDir() error {
 		}
 
 		if info.IsDir() == false {
-			err = CheckFile(path, info)
+			err, hasTodo := CheckFile(path, info)
 			if err != nil {
 				return err
+			}
+
+			if hasTodo {
+				files = append(files, info.Name())
 			}
 		}
 
@@ -66,16 +75,16 @@ func SearchDir() error {
 	})
 
 	if err != nil {
-		return err
+		return err, nil
 	}
 
-	return nil
+	return nil, files
 }
 
-func CheckFile(path string, info fs.FileInfo) error {
+func CheckFile(path string, info fs.FileInfo) (error, bool) {
 	file, err := os.Open(path)
 	if err != nil {
-		return err
+		return err, false
 	}
 	defer file.Close()
 
@@ -83,14 +92,13 @@ func CheckFile(path string, info fs.FileInfo) error {
 	for scanner.Scan() {
 		lineText := scanner.Text()
 		if strings.Contains(lineText, "TODO") {
-			Files = append(Files, info.Name())
-			return nil
+			return nil, true
 		}
 	}
 
 	if err := scanner.Err(); err != nil {
-		return err
+		return err, false
 	}
 
-	return nil
+	return nil, false
 }
