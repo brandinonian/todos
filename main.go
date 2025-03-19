@@ -29,7 +29,7 @@ func main() {
 	if len(results) > 0 {
 		fmt.Println("TODO items:")
 
-		for i := 0; i < len(results); i++ {
+		for i := range results {
 			fmt.Printf("%s\n", results[i])
 		}
 		return
@@ -91,7 +91,7 @@ func CheckFile(path string, info fs.FileInfo) (error, bool) {
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		lineText := scanner.Text()
-		if strings.Contains(lineText, "TODO") {
+		if strings.Contains(lineText, "TODO:") {
 			return nil, true
 		}
 	}

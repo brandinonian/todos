@@ -14,11 +14,11 @@ func TestSearchDir(t *testing.T) {
 	pass2 := "test/test/test/pass2.txt"
 	fail1 := "test/test/test/fail1.txt"
 
-	if err := os.WriteFile(pass1, []byte("TODO"), 0644); err != nil {
+	if err := os.WriteFile(pass1, []byte("TODO:"), 0644); err != nil {
 		t.Fatalf("Error creating pass1.txt: %v", err)
 	}
 
-	if err := os.WriteFile(pass2, []byte("TODO"), 0644); err != nil {
+	if err := os.WriteFile(pass2, []byte("TODO:"), 0644); err != nil {
 		t.Fatalf("Error creating pass1.txt: %v", err)
 	}
 
