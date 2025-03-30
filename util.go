@@ -9,17 +9,17 @@ import (
 	"strings"
 )
 
-func SearchDir(path string) (error, []string) {
+func SearchDir(path string) (error, []file) {
 
 	err := os.Chdir(path)
 	if err != nil {
 		panic(err)
 	}
 
-	var files []string
+	var files []file
 	err = filepath.Walk(".", func(path string, info fs.FileInfo, err error) error {
 		if err != nil {
-			fmt.Printf("Prevent panic by handling failure accessing a path %q: %v\n", path, err)
+			fmt.Printf("Error accessing path %q: %v\n", path, err)
 			return err
 		}
 
@@ -32,13 +32,13 @@ func SearchDir(path string) (error, []string) {
 		}
 
 		if info.IsDir() == false {
-			err, hasTodo := CheckFile(path, info)
+			err, has_todo, lines := CheckFile(path, info)
 			if err != nil {
 				return err
 			}
 
-			if hasTodo {
-				files = append(files, info.Name())
+			if has_todo {
+				files = append(files, file{info.Name(), lines})
 			}
 		}
 
@@ -52,24 +52,33 @@ func SearchDir(path string) (error, []string) {
 	return nil, files
 }
 
-func CheckFile(path string, info fs.FileInfo) (error, bool) {
+func CheckFile(path string, info fs.FileInfo) (error, bool, []string) {
+	has_todo := false
+	lines := []string{}
 	file, err := os.Open(path)
 	if err != nil {
-		return err, false
+		return err, has_todo, nil
 	}
 	defer file.Close()
 
 	scanner := bufio.NewScanner(file)
+	next := 0
 	for scanner.Scan() {
 		lineText := scanner.Text()
-		if strings.Contains(lineText, "TODO") {
-			return nil, true
+		if strings.Contains(lineText, "TODO:") {
+			has_todo = true
+			next = 10
+		}
+
+		if next > 0 {
+			lines = append(lines, lineText)
+			next--
 		}
 	}
 
 	if err := scanner.Err(); err != nil {
-		return err, false
+		return err, has_todo, nil
 	}
 
-	return nil, false
+	return nil, has_todo, lines
 }

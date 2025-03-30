@@ -14,11 +14,11 @@ func TestSearchDir(t *testing.T) {
 	pass2 := "test/test/test/pass2.txt"
 	fail1 := "test/test/test/fail1.txt"
 
-	if err := os.WriteFile(pass1, []byte("TODO"), 0644); err != nil {
+	if err := os.WriteFile(pass1, []byte("TODO:"), 0644); err != nil {
 		t.Fatalf("Error creating pass1.txt: %v", err)
 	}
 
-	if err := os.WriteFile(pass2, []byte("TODO"), 0644); err != nil {
+	if err := os.WriteFile(pass2, []byte("TODO:"), 0644); err != nil {
 		t.Fatalf("Error creating pass1.txt: %v", err)
 	}
 
@@ -40,7 +40,7 @@ func TestSearchDir(t *testing.T) {
 	first := results[0]
 	second := results[1]
 
-	if len(results) != 2 || first != "pass1.txt" || second != "pass2.txt" {
+	if len(results) != 2 || first.name != "pass1.txt" || second.name != "pass2.txt" {
 		t.Fatalf("SearchDir() results: %v", results)
 	}
 }

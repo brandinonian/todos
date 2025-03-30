@@ -4,24 +4,36 @@ import (
 	"fmt"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 )
 
 type model struct {
-	files    []string
+	width    int
+	height   int
+	files    []file
 	selected int
 	preview  []string
+	err      error
 }
 
-func initialModel(items []string) model {
+type file struct {
+	name  string
+	lines []string
+}
+
+func initialModel(items []file) model {
 	return model{
 		files:    items,
 		selected: 0,
-		preview:  nil,
+		preview:  items[0].lines,
 	}
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
+	case tea.WindowSizeMsg:
+		m.width = msg.Width
+		m.height = msg.Height
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "q", "ctrl+c":
@@ -29,27 +41,23 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "j", "down":
 			if m.selected+1 < len(m.files) {
 				m.selected++
+				m.preview = m.files[m.selected].lines
 			}
 		case "k", "up":
 			if m.selected > 0 {
 				m.selected--
+				m.preview = m.files[m.selected].lines
 			}
-			/* case "e", "enter":
-			cmd := exec.Command("nvim", m.files[m.selected])
-			cmd.Stdin = os.Stdin
-			cmd.Stdout = os.Stdout
-			cmd.Stderr = os.Stderr
-			if err := cmd.Start(); err != nil {
-				println("Error running neovim...")
-			}
-			cmd.Wait()
-			return m, tea.Quit */
 		}
 	}
 	return m, nil
 }
 
 func (m model) View() string {
+	return lipgloss.JoinHorizontal(lipgloss.Top, m.listView(), m.previewView())
+}
+
+func (m model) listView() string {
 	s := ""
 	for i, file := range m.files {
 		if i == m.selected {
@@ -58,7 +66,18 @@ func (m model) View() string {
 			s += " "
 		}
 
-		s += fmt.Sprintf("%d: %s\n", i, file)
+		s += fmt.Sprintf("%d: %s\n", i, file.name)
+	}
+	for len(s) < m.width/2 {
+		s += " "
+	}
+	return s
+}
+
+func (m model) previewView() string {
+	s := ""
+	for i, text := range m.preview {
+		s += fmt.Sprintf("%d. %s\n", i+1, text)
 	}
 	return s
 }
