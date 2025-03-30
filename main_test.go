@@ -40,7 +40,7 @@ func TestSearchDir(t *testing.T) {
 	first := results[0]
 	second := results[1]
 
-	if len(results) != 2 || first != "pass1.txt" || second != "pass2.txt" {
+	if len(results) != 2 || first.name != "pass1.txt" || second.name != "pass2.txt" {
 		t.Fatalf("SearchDir() results: %v", results)
 	}
 }
