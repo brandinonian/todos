@@ -19,11 +19,11 @@ func TestSearchDir(t *testing.T) {
 	}
 
 	if err := os.WriteFile(pass2, []byte("TODO:"), 0644); err != nil {
-		t.Fatalf("Error creating pass1.txt: %v", err)
+		t.Fatalf("Error creating pass2.txt: %v", err)
 	}
 
 	if err := os.WriteFile(fail1, []byte("FAIL"), 0644); err != nil {
-		t.Fatalf("Error creating pass1.txt: %v", err)
+		t.Fatalf("Error creating fail1.txt: %v", err)
 	}
 
 	defer t.Cleanup(func() {
@@ -37,10 +37,14 @@ func TestSearchDir(t *testing.T) {
 		t.Fatalf("Error calling SearchDir(): %v", err)
 	}
 
+	if len(results) != 2 {
+		t.Fatalf("SearchDir() results: %v", results)
+	}
+
 	first := results[0]
 	second := results[1]
 
-	if len(results) != 2 || first.name != "pass1.txt" || second.name != "pass2.txt" {
+	if first.name != "pass1.txt" || second.name != "pass2.txt" {
 		t.Fatalf("SearchDir() results: %v", results)
 	}
 }
