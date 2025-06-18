@@ -65,7 +65,7 @@ func CheckFile(path string, info fs.FileInfo) (error, bool, []string) {
 	next := 0
 	for scanner.Scan() {
 		lineText := scanner.Text()
-		if strings.Contains(lineText, "TODO:") {
+		if strings.Contains(lineText, "TODO") {
 			has_todo = true
 			next = 10
 		}

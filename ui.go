@@ -22,10 +22,18 @@ type file struct {
 }
 
 func initialModel(items []file) model {
+	if len(items) > 1 {
+		return model{
+			files:    items,
+			selected: 0,
+			preview:  items[0].lines,
+		}
+	}
+
 	return model{
-		files:    items,
+		files:    nil,
 		selected: 0,
-		preview:  items[0].lines,
+		preview:  nil,
 	}
 }
 
@@ -59,6 +67,11 @@ func (m model) View() string {
 
 func (m model) listView() string {
 	s := ""
+
+	if len(m.files) < 1 {
+		s += "No TODO's found"
+	}
+
 	for i, file := range m.files {
 		if i == m.selected {
 			s += ">"
@@ -76,6 +89,14 @@ func (m model) listView() string {
 
 func (m model) previewView() string {
 	s := ""
+
+	//if len(m.files) < 1 {
+	//	for len(s) < m.width/2 {
+	//		s += " "
+	//	}
+	//	return s
+	//}
+
 	for i, text := range m.preview {
 		s += fmt.Sprintf("%d. %s\n", i+1, text)
 	}
