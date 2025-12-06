@@ -1,9 +1,8 @@
 package main
 
 import (
+	"fmt"
 	"os"
-
-	tea "github.com/charmbracelet/bubbletea"
 )
 
 func main() {
@@ -19,13 +18,16 @@ func main() {
 
 	err, results := SearchDir(path)
 	if err != nil {
-		println("Error searching directory...")
+		fmt.Print("Error searching directory...\n")
 		panic(err)
 	}
 
-	p := tea.NewProgram(initialModel(results), tea.WithAltScreen())
-	if _, err := p.Run(); err != nil {
-		println("Error running tea program...")
-		panic(err)
+	for _, file := range results {
+		fmt.Print("-----------------------------------\n")
+		fmt.Printf("%s\n", file.name)
+		fmt.Print("-----------------------------------\n")
+		for _, line := range file.lines {
+			fmt.Printf("%s\n", line)
+		}
 	}
 }

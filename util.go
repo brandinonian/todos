@@ -9,6 +9,11 @@ import (
 	"strings"
 )
 
+type file struct {
+	name  string
+	lines []string
+}
+
 func SearchDir(path string) (error, []file) {
 
 	err := os.Chdir(path)
