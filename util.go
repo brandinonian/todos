@@ -16,7 +16,14 @@ type file struct {
 
 func SearchDir(path string) (error, []file) {
 
-	err := os.Chdir(path)
+	cwd, err := os.Getwd()
+	if err != nil {
+		return err, nil
+	}
+
+	defer os.Chdir(cwd)
+
+	err = os.Chdir(path)
 	if err != nil {
 		panic(err)
 	}

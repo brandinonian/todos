@@ -22,6 +22,11 @@ func main() {
 		panic(err)
 	}
 
+	if len(results) == 0 {
+		fmt.Printf("No todos found!\n")
+		os.Exit(0)
+	}
+
 	for _, file := range results {
 		fmt.Print("-----------------------------------\n")
 		fmt.Printf("%s\n", file.name)

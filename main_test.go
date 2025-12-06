@@ -10,6 +10,12 @@ func TestSearchDir(t *testing.T) {
 		t.Fatalf("Error creating test dir: %v", err)
 	}
 
+	defer t.Cleanup(func() {
+		if err := os.RemoveAll("test"); err != nil {
+			t.Errorf("Error deleting test files: %v", err)
+		}
+	})
+
 	pass1 := "test/test/pass1.txt"
 	pass2 := "test/test/test/pass2.txt"
 	fail1 := "test/test/test/fail1.txt"
@@ -25,12 +31,6 @@ func TestSearchDir(t *testing.T) {
 	if err := os.WriteFile(fail1, []byte("FAIL"), 0644); err != nil {
 		t.Fatalf("Error creating fail1.txt: %v", err)
 	}
-
-	defer t.Cleanup(func() {
-		if err := os.RemoveAll("test"); err != nil {
-			t.Fatalf("Error deleting test files: %v", err)
-		}
-	})
 
 	err, results := SearchDir("test")
 	if err != nil {
